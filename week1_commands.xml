@@ -1,0 +1,26 @@
+# yum -y update
+
+# yum install httpd (apache)
+
+# httpd -version (Apache/2.4.6)
+
+# hostnamectl set-hostname andrew-sts-week-1
+
+# echo $HOSTNAME
+
+# vi index.html
+
+Add the following text to the index.html file:
+
+<!DOCTYPE html>
+Hello World, my name is Andrew. My favorite cloud provider is AWS and my virtual machine's hostname 
+</html>
+
+
+
+# echo "$HOSTNAME" >> index.html 
+
+# chmod 755 index.html
+
+# service httpd start
+
