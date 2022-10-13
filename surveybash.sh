@@ -3,6 +3,7 @@
 #Variables
 answer_no=no
 answer_yes=yes
+date=$(date)
 
 # Hello thank you for visiting our resturant. Do you have time to complete a quick survey? Please enter "Yes" or "No".
 
@@ -33,7 +34,7 @@ read rating
 # conditional if statement for input
 if [ "$rating" -le 5 ] && [ "$rating" -ge 1 ];
   then
-      echo "Thank you for completing the survey!"
+      echo "Thank you. You have completed this survey on $date. Have a great day!"
   elif [ "$rating" -lt 1 ] || [ "$rating" -gt 5 ] 
     then
       echo "This rating is not between 1-5"
