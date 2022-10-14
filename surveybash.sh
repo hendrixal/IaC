@@ -31,7 +31,7 @@ fi
 # reading input for rating score
 read rating
 
-# conditional if statement for input
+# conditional if statement for above input
 if [ "$rating" -le 5 ] && [ "$rating" -ge 1 ];
   then
       echo "Thank you. You have completed this survey on $date. Have a great day!"
