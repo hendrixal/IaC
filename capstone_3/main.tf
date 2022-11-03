@@ -1,7 +1,15 @@
+# aws profile into
+
 provider "aws" {
     profile                 = "default"
     region                  = "us-east-1"
 }
+
+# using the module vpc to create vpc with the defined ip addresses for the cidr blocks
+# using the data source to find avaliability zones.
+# create vpc to have 3 avaliablty zones. each az will be associated to a different subnet
+# example below looks for first az avaliable for public, the first 2 az avaliable for private
+# this is associated to the subnets created in the main.tf of the module vpc
 
 module "vpc" {
   source = "/Users/tres/Documents/STS/IaC Bootcamp/terraform/capstone_3/modules/vpc"
@@ -21,21 +29,27 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+
 #### RDS Setup Configuration#####
 
+# create subnet group for RDS database
+# RDS requires at least 2 subnets in order to create
 
 resource "aws_db_subnet_group" "rds-subnet" {
-  name       = "db-subnet-group"
+  name       = "rds_subnet_group"
   subnet_ids = [module.vpc.private_sub_1 , module.vpc.private_sub_2]
 
   tags = {
-    Name = "My DB subnet group"
+    Name = "RDS subnet group"
   }
 }
 
+# create security group for RDS instance
+# allowing all inbound traffic to RDS
+
 resource "aws_security_group" "rds-security-group" {
   name        = "rds-security-group"
-  description = "allow inbound access to the database"
+  description = "inbound rule to rds security group"
   vpc_id      = module.vpc.vpc_id
 
   ingress {
@@ -58,6 +72,9 @@ resource "aws_security_group" "rds-security-group" {
 
 ##### RDS Instance Setup ####
 
+# create RDS database with master user drupal and database drupaldb
+# error on deletion if skip_final_snapshot is set to false
+
 resource "aws_db_instance" "rds-db" {
   allocated_storage    = 150
   storage_type         = "gp2"
@@ -73,10 +90,19 @@ resource "aws_db_instance" "rds-db" {
   vpc_security_group_ids = [ aws_security_group.rds-security-group.id ]
 }
 
+# output rds endpoint value to use as variable to execute query in bash script
+
 output "rds_endpoint" {
   value = "${aws_db_instance.rds-db.endpoint}"
 }
 
+
+# create ec2 instance for webserver
+# associate public ip address to ec2 instance
+# depends on output from vpc_id and int_gateway
+# depends on can be used when modules are called
+# call user data to execute bash commands at startup
+# takes about 20min for bash script to complete
 
 
 resource "aws_instance" "webserver" {
@@ -96,6 +122,10 @@ resource "aws_instance" "webserver" {
 
 }
 
+# not working at the moment
+# created template file to be use to execute bash script to execute sql queries
+
+
 data "template_file" "user-data" {
   template = file("mysql.sh")
   vars = {
@@ -103,7 +133,7 @@ data "template_file" "user-data" {
   }
 }
 
-
+# create security group for ec2 instance. allow all inbound/outboud traffic
 
 resource "aws_security_group" "ec2-security-group" {
   name        = "security-group"

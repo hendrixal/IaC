@@ -1,3 +1,6 @@
+# Create output values to associate resource id's on creation to configrue aws resources
+# The below output values will be used in main.terraform
+
 
 output "vpc_id" {
     value = aws_vpc.vpc.id
